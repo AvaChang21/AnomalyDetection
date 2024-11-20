@@ -196,38 +196,43 @@ def keyframes_by_motion(cap, keyframe_dir, blob_dir, movement_threshold=10):
 
 v_dir = '/Users/changyichen/Desktop/MasterThesis/datasets/UCF_Crimes/Anomaly_Detection'
 o_dir = '/Users/changyichen/Desktop/MasterThesis/datasets/UCF_Crimes/Segmented/'
-
+folders = []
 for _, t, _ in os.walk(v_dir):
-    for tt in tqdm(t, position=0, desc='Processing......', leave=False, ncols=80):
-        video_dir = os.path.join(v_dir, tt)
-        base_dir = os.path.join(o_dir, tt)
-        try:
-            os.makedirs(base_dir)
-        except:
-            pass
-        for _, ds, _ in os.walk(video_dir):
-            for dir_name in tqdm(ds, position=1, desc=f'Processing Directories in {tt}', leave=False, ncols=80):
-                video_dirs = os.path.join(video_dir, dir_name)
-                for _, _, f in os.walk(video_dirs):
-                    for file in tqdm(f, position=2, desc=f'Processing files in {dir_name}', leave=False, ncols=80):
-                        video_path = os.path.join(video_dirs, file)
-                        out_video_dir = os.path.join(base_dir, dir_name, file.split('.')[0], 'video')
-                        keyframe_dir = os.path.join(base_dir, dir_name, file.split('.')[0], 'keyframe')
-                        blob_dir = os.path.join(base_dir, dir_name, file.split('.')[0], 'blob')
+    folders.extend(t)
+    break
+for tt in tqdm(t, position=0, desc='Processing......', leave=False, ncols=80):
+    video_dir = os.path.join(v_dir, tt)
+    base_dir = os.path.join(o_dir, tt)
+    try:
+        os.makedirs(base_dir)
+    except:
+        pass
+    dirs = []
+    for _, ds, _ in os.walk(video_dir):
+        dirs.extend(ds)
+        break
+    for dir_name in tqdm(ds, position=1, desc=f'Processing Directories in {tt}', leave=False, ncols=80):
+        video_dirs = os.path.join(video_dir, dir_name)
+        for _, _, f in os.walk(video_dirs):
+            for file in tqdm(f, position=2, desc=f'Processing files in {dir_name}', leave=False, ncols=80):
+                video_path = os.path.join(video_dirs, file)
+                out_video_dir = os.path.join(base_dir, dir_name, file.split('.')[0], 'video')
+                keyframe_dir = os.path.join(base_dir, dir_name, file.split('.')[0], 'keyframe')
+                blob_dir = os.path.join(base_dir, dir_name, file.split('.')[0], 'blob')
 
-                        try:
-                            os.makedirs(blob_dir)
-                            os.makedirs(keyframe_dir)
-                            os.makedirs(out_video_dir)
-                        except:
-                            pass
+                try:
+                    os.makedirs(blob_dir)
+                    os.makedirs(keyframe_dir)
+                    os.makedirs(out_video_dir)
+                except:
+                    pass
 
-                        output_path = os.path.join(out_video_dir, file)
-                        video_segment(video_path, output_path)
+                output_path = os.path.join(out_video_dir, file)
+                video_segment(video_path, output_path)
 
-                        cap = cv2.VideoCapture(output_path)
-                        keyframes = keyframes_by_motion(cap, keyframe_dir, blob_dir)
+                cap = cv2.VideoCapture(output_path)
+                keyframes = keyframes_by_motion(cap, keyframe_dir, blob_dir)
 
-                        os.remove(output_path)
+                os.remove(output_path)
 
-                        shutil.rmtree(out_video_dir)
+                shutil.rmtree(out_video_dir)
